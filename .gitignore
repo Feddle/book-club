@@ -1,0 +1,11 @@
+# Packages
+node_modules
+
+.env
+
+# Misc
+.vscode/
+start.bat
+
+
+
