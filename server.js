@@ -12,7 +12,7 @@ const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/auth-routes");
 const userRoutes = require("./routes/user-routes.js");
-const passportSetup = require("./config/passport-setup");
+require("./config/passport-setup");
 const User = require("./models/user-model");
 const Trade = require("./models/trade-model");
 
@@ -20,7 +20,22 @@ const app = express();
 const url = "mongodb://"+process.env.DB_USER+":"+process.env.DB_PASS+"@"+process.env.DB_HOST+":"+process.env.DB_PORT+"/"+process.env.DB_NAME;
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "https://fonts.googleapis.com", "https://stackpath.bootstrapcdn.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "http://books.google.com"],
+            scriptSrc: ["'self'", "https://code.jquery.com", "https://cdnjs.cloudflare.com", "https://stackpath.bootstrapcdn.com"],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: true,
+        }
+    },
+    hidePoweredBy: { setTo: "me" },
+    referrerPolicy: { policy: "strict-origin" }
+}));
+
 app.use(express.static("public"));
 app.use(cookieParser());
 
@@ -48,8 +63,15 @@ function createTestUsers() {
     for(let i = 1; i < 6; i++) {
         users.push({username: `test${i}`, password: "12345", link: crypto.randomBytes(3).toString("hex")});
     }    
-    User.insertMany(users, (err) => {if(err) console.log("test users already exist, creation skipped");});
+    User.insertMany(users, (err) => {if(err) console.log("Test users already exist, creation skipped");});
 }
+
+function checkHttps(req, res, next){
+    if(req.get("X-Forwarded-Proto").indexOf("https") != -1) return next();
+    else res.redirect("https://" + req.hostname + req.url);
+}
+  
+app.all("*", checkHttps);
 
 app.use("/auth", authRoutes);
 app.use("/my", userRoutes);

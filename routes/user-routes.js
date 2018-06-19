@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
 const User = require("../models/user-model");
 const Trade = require("../models/trade-model");
 const axios = require("axios");
