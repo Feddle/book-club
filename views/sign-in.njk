@@ -7,7 +7,7 @@
     <h4>Sign in</h4>
     <p>This is a demo site and for everyones convinience you can not register with username and password.</p>
     <p>There are 5 test accounts that you can use and play with.</p>
-    <p>If you want you can sign in with Twitter, in which case only your Twitter id and username will be stored</p>
+    <p>If you want you can sign in with Twitter, in which case no personal information will be stored (except Twitter id and username)</p>
     <p>
       <button class="btn btn-outline-dark" type="button" data-toggle="collapse" data-target="#collapseAccounts">
         Show test accounts
@@ -24,7 +24,7 @@
       </div>
     </div>
     <form method="post" action="/auth/local">
-      <div class "form-group">
+      <div class="form-group">
         <label for="input-username">Username</label>
         <input id="input-username" class="form-control" type="text" name="username">
       </div>
