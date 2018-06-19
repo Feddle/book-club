@@ -140,7 +140,7 @@ function sortTrades(trades) {
             tradeHistory.push(new_trade);
         }
     }     
-    return [pendingTrades.length > 0 ? pendingTrades : false, tradeHistory];
+    return [pendingTrades.length > 0 ? pendingTrades : false, tradeHistory.length > 0 ? tradeHistory : false];
 }
 
 module.exports = router;
