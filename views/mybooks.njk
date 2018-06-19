@@ -1,0 +1,48 @@
+ {% extends "index.njk" %} {% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css"> {% endblock %}
+<!--CONTENT-->
+{% block content %}
+<main class="container-fluid" id="mainContainer">
+  <div class="container bg-light rounded pb-2 pt-2">
+    <h4>My Books</h4>
+    <div class="form-group">
+      <label for="input-search">Search for a book to list for trade</label>
+      <input type="text" class="form-control" id="input-search" placeholder="ex. Harry Potter">
+    </div>
+    <div class="collapse" id="searchResults">
+      <div class="card card-body">
+        <p id="collapse-message" class="text-center">Please wait...</p>
+      </div>
+    </div>
+    <div>
+      <label for="container-mybooks">My books up for trade</label>
+      {% if trades %}
+      <div class="row" id="container-mybooks">
+        {% for trade in trades %}
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="card text-center">
+            <img class="card-img-top" src="{{ trade.book.cover }}" alt="Card image cap">
+            <div class="card-body">
+              <a href="{{ trade.book.link }}">{{ trade.book.title }}</a>
+              <p class="card-text">{{ trade.book.author }}</p>
+              <form action="/my/books/remove" method="post">
+                <input type="hidden" value="{{ trade.id }}" name="trade_id">
+                <button class="btn btn-danger">Remove</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="container" id="container-mybooks">
+        <p class="text-center" id="mybooks_empty">You have not listed any books</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  </div>
+</main>
+{% endblock %} {% block scripts %}
+<script src="/mybooks.js"></script>
+{% endblock %}

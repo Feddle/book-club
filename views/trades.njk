@@ -1,0 +1,96 @@
+ {% extends "index.njk" %}
+
+<!--CONTENT-->
+{% block content %}
+<main class="container-fluid" id="mainContainer">
+  <div class="container bg-light rounded pb-2 pt-2">
+    <div class="row">
+      <div class="col-md-6">
+        <h4>Pending trades</h4>
+        {% if pendingTrades %}
+        <ul class="list-group">
+          {% for trade in pendingTrades %}
+          <li class="list-group-item">
+            <div class="media">
+              <img src="{{ trade.book.cover}}" alt="book-cover" class="mr-3">
+              <div class="media-body">
+                <span class="float-md-left">
+                  <h6 class="mb-0">{{ trade.book.title }}</h6>
+                  <small>{{ trade.book.author }}</small>
+                </span>
+                <span class="float-md-right">
+                  {% if trade.trader.id == user.id and trade.customer.id %}
+                  <p>Trader: You</p>
+                  <p>Customer: <a href="/user/{{ trade.customer.link }}">{{trade.customer.username }}</a></p>
+                  <form action="/my/trades/accept" method="post">
+                    <input type="hidden" value="{{ trade.id }}" name="trade_id">
+                    <button class="btn btn-success">Accept</button>
+                  </form>
+                  <form action="/my/trades/decline" method="post">
+                    <input type="hidden" value="{{ trade.id }}" name="trade_id">
+                    <button class="btn btn-danger">Decline</button>
+                  </form>
+                  {% elif trade.trader.id == user.id %}
+                  <p>Trader: You</p>
+                  <form action="/my/books/remove" method="post">
+                    <input type="hidden" value="{{ trade.id }}" name="trade_id">
+                    <button class="btn btn-danger">Remove</button>
+                  </form>
+                  {% else %}    
+                  <p>Trader: <a href="/user/{{ trade.trader.link }}">{{ trade.trader.username }}</a></p>
+                  <form action="/my/books/withdraw" method="post">
+                    <input type="hidden" value="{{ trade.id }}" name="trade_id">
+                    <button class="btn btn-danger">Withdraw</button>
+                  </form>              
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="container" id="container-pendingTrades"><p class="text-center">You have no pending trades</p></div>
+        {% endif %}
+      </div>
+      <div class="col-md-6">
+        <h4>Trade history</h4>
+        {% if tradeHistory %}
+        <ul class="list-group">
+          {% for trade in tradeHistory %}
+          <li class="list-group-item">
+            <div class="media">
+              <img src="{{ trade.book.cover}}" alt="book-cover" class="mr-3">
+              <div class="media-body">
+                <span class="float-lg-left">
+                  <h6 class="mb-0">{{ trade.book.title }}</h6>
+                  <small>{{ trade.book.author }}</small>
+                </span>
+                <span class="float-lg-right">
+                  {% if trade.trader.id == user.id %}
+                  <p>Trader: You</p>
+                  <p>Traded to:                    
+                    <a href="/user/{{ trade.trader.link }}">{{ trade.trader.username }}</a>                    
+                  </p>                  
+                  {% else %}
+                  <p>Trader:
+                    <a href="/user/{{ trade.trader.link }}">{{ trade.trader.username }}</a>
+                  </p>
+                  <p>Traded to: You</p>                  
+                  {% endif %}
+                  <p class="mb-0">{{ trade.date }}</p>
+                </span>
+              </div>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="container" id="container-tradeHistory"><p class="text-center">You have no trade history</p></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  </div>
+</main>
+{% endblock %}

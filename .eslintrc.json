@@ -2,11 +2,16 @@
     "env": {
         "browser": true,
         "es6": true,
-        "node": true
+        "node": true,
+        "jquery": true
     },
     "extends": "eslint:recommended",
     "parserOptions": {
-        "sourceType": "module"
+        "sourceType": "module",
+        "ecmaVersion": 2017,
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        }
     },
     "rules": {
         "indent": [
@@ -24,6 +29,12 @@
         "semi": [
             "error",
             "always"
+        ],
+        "no-console": [
+            "off"
+        ],
+        "object-shorthand": [
+            "error", "always"
         ]
     }
 }

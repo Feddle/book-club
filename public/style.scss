@@ -1,0 +1,66 @@
+$color-white: rgba(255, 255, 255, 0.9);
+$color-white-hover: rgba(255, 255, 255, 0.5);
+$color-background: #ffcca333;
+
+
+html {
+  position: relative;
+  min-height: 100vh !important;
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),url("wallhaven-503458.jpg") no-repeat center center fixed;  
+  background-size: cover;
+}
+
+body {
+  background-color: transparent !important;
+  margin-bottom: 70px !important;
+  min-height: 100%;
+}
+
+nav {  
+  .navbar-brand:hover{
+    color: $color-white
+  }
+  a {
+    color: $color-white
+  }
+  a:hover {
+    color: $color-white-hover;
+  }
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;  
+  right: 0;  
+  height: 50px;  
+  text-align: right;
+  a {
+   color: $color-white
+  }  
+  p {    
+    color: $color-white;
+    font-family: 'Quicksand', sans-serif;
+  }
+  a:hover {
+    color: $color-white-hover;
+    text-decoration: inherit;
+  }
+}
+
+
+#div_background {  
+
+  p {
+    font-family: 'Quicksand', sans-serif;
+  }
+}
+
+.card {
+  img {
+    width: 100px;
+    height: 150px;
+    align-self: center;
+  }
+}
+
+
