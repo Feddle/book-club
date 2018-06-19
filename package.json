@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "FCC book trading club",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "sass": "node-sass public/style.scss public/style.processed.css"
   },
   "dependencies": {
     "axios": "^0.18.0",
