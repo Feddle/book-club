@@ -70,7 +70,7 @@
                   {% if trade.trader.id == user.id %}
                   <p>Trader: You</p>
                   <p>Traded to:                    
-                    <a href="/user/{{ trade.trader.link }}">{{ trade.trader.username }}</a>                    
+                    <a href="/user/{{ trade.customer.link }}">{{ trade.customer.username }}</a>                    
                   </p>                  
                   {% else %}
                   <p>Trader:
