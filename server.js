@@ -33,7 +33,7 @@ app.use(helmet({
         }
     },
     hidePoweredBy: { setTo: "me" },
-    referrerPolicy: { policy: "strict-origin" }
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" }
 }));
 
 app.use(express.static("public"));
