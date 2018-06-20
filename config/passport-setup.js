@@ -28,8 +28,7 @@ passport.use(
 passport.use(
     new TwitterStrategy({        
         consumerKey: process.env.TWITTER_CONSUMER_KEY,
-        consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-        callbackURL: "/auth/twitter/redirect"
+        consumerSecret: process.env.TWITTER_CONSUMER_SECRET        
     }, (token, tokenSecret, profile, done) => {           
         User.findOne({twitterId: profile.id}).then((currentUser) => {
             if(currentUser){                

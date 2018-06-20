@@ -1,70 +1,89 @@
 $(document).ready(() => {
-    $("#input-search").on("keypress", searchBook);
+    $("#input-search").on("keypress", searchBookHandler);
+    $("#searchResults").on("click", "button", function () {                    
+        let bookData = {
+            cover: $(this).data("cover"),
+            title: $(this).data("title"),
+            author: $(this).data("author"),
+            link: $(this).data("link")
+        };
+        listBook(bookData);
+    });
 });
 
-function searchBook(element) {    
+async function searchBookHandler(element) {    
     if(element.which != 13) return;
     $(this).attr("disabled", "disabled");
     let searchParam = $(this).val();        
     $("#searchResults").collapse();
-    $("#collapse-message").addClass("animated pulse infinite");  
+    $("#collapse-message").addClass("animated pulse infinite"); 
+    let searchResults = await searchBooks(searchParam);             
+    $(this).removeAttr("disabled");
+    let parentDiv = $("<div class=\"row\"</div>");                     
+    for(let i = 0; i < searchResults.items.length; i++) {
+        let bookData = searchResults.items[i].volumeInfo;                    
+        $(parentDiv).append(createBookCard(bookData, true));                
+    }
+    $("#searchResults div").replaceWith(parentDiv);        
+}
+
+async function searchBooks(searchParam) {
     $.ajax({
         url: "http://127.0.0.1:51334/my/books/search",
         method: "GET",
         data: {searchParam},            
         success: (d) => {
-            $(this).removeAttr("disabled");
-            let parentDiv = $("<div class=\"row\"</div>");                     
-            for(let i = 0; i < d.items.length; i++) {
-                let bookData = d.items[i].volumeInfo;                    
-                $(parentDiv).append(createBookListing(bookData, true));                
-            }
-            $("#searchResults div").replaceWith(parentDiv);
-            $("#searchResults button").on("click", function () {                    
-                let bookData = {
-                    cover: $(this).data("cover"),
-                    title: $(this).data("title"),
-                    author: $(this).data("author"),
-                    link: $(this).data("link")
-                };
-                listBook(bookData);
-            });
+            return d;
         }
-    });        
+    });
 }
 
-async function listBook(bookData) {    
+async function listBook(bookData) {
+    let data = await postBookData(bookData);
+    let myBooksContainer = createMyBooksContainer();
+    let bookDataForView = formatBookData(data);
+    let bookCard = createBookCard(bookDataForView, false);
+    $(myBooksContainer).append(bookCard);
+    $("#container-mybooks").replaceWith(myBooksContainer);
+    $("html, body").animate({
+        scrollTop: $("#container-mybooks").offset().top
+    }, 500);    
+}
+
+function postBookData(bookData) {
     $.ajax({
         url: "http://127.0.0.1:51334/my/books/add",
         method: "POST",
         data: bookData,            
         success: (d) => {            
-            let parentDiv;
-            if($("#container-mybooks")) {
-                parentDiv = $("#container-mybooks");
-                $("#container-mybooks #mybooks_empty").remove();
-                $(parentDiv).addClass("row");
-                $(parentDiv).removeClass("container");
-            } 
-            else parentDiv = $("<div class=\"row\" id=\"container-mybooks\"></div>");            
-            let bookData = {
-                imageLinks: {smallThumbnail: d.book.cover},
-                title: d.book.title,
-                author: d.book.author,
-                previewLink: d.book.link,
-                id: d._id
-            };                         
-            $(parentDiv).append(createBookListing(bookData, false));
-            $("#container-mybooks").replaceWith(parentDiv);
-            $("html, body").animate({
-                scrollTop: $("#container-mybooks").offset().top
-            }, 500);
+            return d;
         }
     });
 }
 
+function createMyBooksContainer() {
+    let myBooksContainer;
+    if($("#container-mybooks")) {
+        myBooksContainer = $("#container-mybooks");
+        $("#container-mybooks #mybooks_empty").remove();
+        $(myBooksContainer).addClass("row").removeClass("container");
+    } 
+    else myBooksContainer = $("<div class=\"row\" id=\"container-mybooks\"></div>");
+    return myBooksContainer;
+}
+
+function formatBookData(data) {
+    return {
+        imageLinks: {smallThumbnail: data.book.cover},
+        title: data.book.title,
+        author: data.book.author,
+        previewLink: data.book.link,
+        id: data._id
+    }; 
+}
+
 //buttonType = false -> button is "remove button"
-function createBookListing(bookData, buttonType) {         
+function createBookCard(bookData, buttonType) {         
     let title = bookData.title;
     let author;
     try { author = bookData.authors[0]; }
