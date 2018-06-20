@@ -111,16 +111,25 @@ router.post("/books/add", urlencodedParser, (req, res, next) => {
 });
 
 router.post("/books/remove", urlencodedParser, (req, res, next) => {       
-    let tradeId = req.body.trade_id;       
+    let trade_id = req.body.trade_id;       
     Promise.all([
-        Trade.remove({_id: tradeId}),
-        User.update({ _id: req.user.id}, {$pull: {trades: tradeId}})
+        Trade.remove({_id: trade_id}),
+        User.update({ _id: req.user.id}, {$pull: {trades: trade_id}})
     ]).then( () => {        
         res.redirect(req.get("Referer"));
     }).catch((error) => {
         console.log(error);
         next(error);
     });
+});
+
+router.post("/books/withdraw", urlencodedParser, (req, res, next) => {       
+    let trade_id = req.body.trade_id;       
+    Trade.updateOne({_id: trade_id}, {customer: {}})
+        .then(() => {
+            res.redirect("/my/trades");
+        })
+        .catch((e) => next(e));
 });
 
 function sortTrades(trades) {
