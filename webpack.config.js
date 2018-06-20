@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-    mode: "production",
+    mode: "development",
     entry: ["babel-polyfill", "./clientjs/mybooks.js"],    
     output: {
         path: path.resolve(__dirname, "public"),

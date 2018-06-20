@@ -20,21 +20,7 @@ const app = express();
 const url = "mongodb://"+process.env.DB_USER+":"+process.env.DB_PASS+"@"+process.env.DB_HOST+":"+process.env.DB_PORT+"/"+process.env.DB_NAME;
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "https://fonts.googleapis.com", "https://stackpath.bootstrapcdn.com", "https://cdnjs.cloudflare.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "http://books.google.com", "https://via.placeholder.com"],
-            scriptSrc: ["'self'", "https://code.jquery.com", "https://cdnjs.cloudflare.com", "https://stackpath.bootstrapcdn.com"],
-            objectSrc: ["'none'"],
-            upgradeInsecureRequests: true,
-        }
-    },
-    hidePoweredBy: { setTo: "me" },
-    referrerPolicy: { policy: "strict-origin-when-cross-origin" }
-}));
+//app.use(helmet(require("./config/helmet-setup")));
 
 app.use(express.static("public"));
 app.use(cookieParser());
@@ -53,28 +39,21 @@ app.use(cookieSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect(url, () => {
-    console.log("connected to mongodb");
-    createTestUsers();
-});
 
-function createTestUsers() {
-    let users = [];
-    for(let i = 1; i < 6; i++) {
-        users.push({username: `test${i}`, password: "12345", link: crypto.randomBytes(3).toString("hex")});
-    }    
-    User.insertMany(users, (err) => {if(err) console.log("Test users already exist, creation skipped");});
-}
-
-function checkHttps(req, res, next){
+/*function checkHttps(req, res, next){
     if(req.get("X-Forwarded-Proto").indexOf("https") != -1) return next();
     else res.redirect("https://" + req.hostname + req.url);
 }
   
-app.all("*", checkHttps);
+app.all("*", checkHttps);*/
 
 app.use("/auth", authRoutes);
 app.use("/my", userRoutes);
+
+mongoose.connect(url, () => {
+    console.log("connected to mongodb");
+    createTestUsers();
+});
 
 const authCheck = (req, res, next) => {
     if(!req.user){
@@ -83,6 +62,14 @@ const authCheck = (req, res, next) => {
         next();
     }
 };
+
+function createTestUsers() {
+    let users = [];
+    for(let i = 1; i < 6; i++) {
+        users.push({username: `test${i}`, password: "12345", link: crypto.randomBytes(3).toString("hex")});
+    }    
+    User.insertMany(users, (err) => {if(err) console.log("Test users already exist, creation skipped");});
+}
 
 //route for homepage
 app.get("/", (req, res) => {

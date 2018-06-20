@@ -28,7 +28,7 @@ async function searchBookHandler(element) {
 }
 
 async function searchBooks(searchParam) {
-    $.ajax({
+    return $.ajax({
         url: "http://127.0.0.1:51334/my/books/search",
         method: "GET",
         data: {searchParam},            
@@ -51,7 +51,7 @@ async function listBook(bookData) {
 }
 
 function postBookData(bookData) {
-    $.ajax({
+    return $.ajax({
         url: "http://127.0.0.1:51334/my/books/add",
         method: "POST",
         data: bookData,            
