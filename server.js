@@ -99,10 +99,14 @@ app.get("/books", (req, res, next) => {
 app.post("/books", authCheck, urlencodedParser, (req, res, next) => {
     let trade_id = req.body.trade_id;
     if(trade_id == req.user.id) return next("trading error");
-    Trade.updateOne({_id: trade_id}, {customer: {id: req.user.id, username: req.user.username, link: req.user.link}}, (err) => {
+    Trade.findById(trade_id, (err, trade) => {
         if(err) next(err);
-        else return res.redirect("/my/trades");
-    });
+        else if(trade.customer.id) return res.redirect("/books");        
+        Trade.updateOne({_id: trade_id}, {customer: {id: req.user.id, username: req.user.username, link: req.user.link}}, (err) => {
+            if(err) next(err);
+            else return res.redirect("/my/trades");
+        });
+    });    
 });
 
 //default route
