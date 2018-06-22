@@ -25,10 +25,7 @@
               <p class="card-text">{{ trade.book.author }}</p>
               {% if trade.trader.id == user.id %}
               <button class="btn btn-primary disabled" disabled>Propose Trade</button>
-              {% elif trade.customer.id and trade.pending %}
-              <p class="card-text">Trader:
-                <a href="/user/{{ trade.trader.link }}">{{ trade.trader.username }}</a>
-              </p>
+              {% elif trade.customer.id and trade.pending %}              
               <form method="post">
                 <input type="hidden" value="{{ trade.id }}" name="trade_id">
                 <button class="btn btn-danger disabled" disabled>Waiting for acceptance</button>
