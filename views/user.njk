@@ -25,7 +25,7 @@
               <p class="card-text">{{ trade.book.author }}</p>
               {% if trade.trader.id == user.id %}
               <button class="btn btn-primary disabled" disabled>Propose Trade</button>
-              {% elif trade.customer.id %}
+              {% elif trade.customer.id and trade.pending %}
               <p class="card-text">Trader:
                 <a href="/user/{{ trade.trader.link }}">{{ trade.trader.username }}</a>
               </p>
