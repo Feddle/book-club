@@ -8,5 +8,8 @@ node_modules
 .vscode/
 start.bat
 
+# webpack bundle
+bundle.js
+
 
 
