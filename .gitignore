@@ -9,7 +9,7 @@ node_modules
 start.bat
 
 # webpack bundle
-bundle.js
+public
 
 
 
