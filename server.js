@@ -20,7 +20,6 @@ const app = express();
 const url = "mongodb://"+process.env.DB_USER+":"+process.env.DB_PASS+"@"+process.env.DB_HOST+":"+process.env.DB_PORT+"/"+process.env.DB_NAME;
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-//app.use(helmet(require("./config/helmet-setup")));
 
 app.use(express.static("public"));
 app.use(cookieParser());
@@ -39,13 +38,15 @@ app.use(cookieSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
+if(process.env.ENVIRONMENT === "production") {
+    app.use(helmet(require("./config/helmet-setup")));  
+    app.all("*", checkHttps);
+}
 
-/*function checkHttps(req, res, next){
+function checkHttps(req, res, next){
     if(req.get("X-Forwarded-Proto").indexOf("https") != -1) return next();
     else res.redirect("https://" + req.hostname + req.url);
 }
-  
-app.all("*", checkHttps);*/
 
 app.use("/auth", authRoutes);
 app.use("/my", userRoutes);

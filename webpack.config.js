@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-    mode: "development",
+    mode: process.env.ENVIRONMENT,
     entry: ["babel-polyfill", "./clientjs/mybooks.js"],    
     output: {
         path: path.resolve(__dirname, "public"),
