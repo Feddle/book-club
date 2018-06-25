@@ -1,6 +1,6 @@
 {
   "name": "book-club",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "FCC book trading club",
   "scripts": {
     "start": "node server.js",
