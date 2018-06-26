@@ -1,13 +1,12 @@
 
 require("dotenv").config();
+const {createTestUsers} = require("./utils/utilFunc");
 const express = require("express");
 const nunjucks = require("nunjucks");
 const helmet = require("helmet");
 const passport = require("passport");
 const mongoose = require("mongoose");
 const cookieSession = require("cookie-session");
-const bodyParser = require("body-parser");
-const crypto = require("crypto");
 const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/auth-routes");
@@ -18,7 +17,6 @@ const Trade = require("./models/trade-model");
 
 const app = express();
 const url = "mongodb://"+process.env.DB_USER+":"+process.env.DB_PASS+"@"+process.env.DB_HOST+":"+process.env.DB_PORT+"/"+process.env.DB_NAME;
-const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 
 app.use(express.static("public"));
@@ -52,25 +50,13 @@ app.use("/auth", authRoutes);
 app.use("/my", userRoutes);
 
 mongoose.connect(url, () => {
-    console.log("connected to mongodb");
-    createTestUsers();
+    console.log("connected to mongodb");    
+    User.insertMany(createTestUsers(), (err) => {
+        if(err) console.log("Test users already exist, creation skipped");
+        else console.log("Test users created");
+    });
 });
 
-const authCheck = (req, res, next) => {
-    if(!req.user){
-        res.redirect("/auth");
-    } else {
-        next();
-    }
-};
-
-function createTestUsers() {
-    let users = [];
-    for(let i = 1; i < 6; i++) {
-        users.push({username: `test${i}`, password: "12345", link: crypto.randomBytes(3).toString("hex")});
-    }    
-    User.insertMany(users, (err) => {if(err) console.log("Test users already exist, creation skipped");});
-}
 
 //route for homepage
 app.get("/", (req, res) => {
@@ -97,18 +83,6 @@ app.get("/books", (req, res, next) => {
     });    
 });
 
-app.post("/books", authCheck, urlencodedParser, (req, res, next) => {
-    let trade_id = req.body.trade_id;
-    if(trade_id == req.user.id) return next("trading error");
-    Trade.findById(trade_id, (err, trade) => {
-        if(err) next(err);
-        else if(trade.customer.id) return res.redirect("/books");        
-        Trade.updateOne({_id: trade_id}, {customer: {id: req.user.id, username: req.user.username, link: req.user.link}}, (err) => {
-            if(err) next(err);
-            else return res.redirect("/my/trades");
-        });
-    });    
-});
 
 //default route
 app.get("*", (req, res) => {

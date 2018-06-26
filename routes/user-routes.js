@@ -3,19 +3,11 @@ const bodyParser = require("body-parser");
 const User = require("../models/user-model");
 const Trade = require("../models/trade-model");
 const axios = require("axios");
+const {authCheck, sortTrades} = require("../utils/utilFunc");
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-const authCheck = (req, res, next) => {
-    if(!req.user){
-        res.redirect("/auth");
-    } else {
-        next();
-    }
-};
-
 router.use(authCheck);
-
 
 
 router.get("/settings", (req, res) => {
@@ -37,6 +29,7 @@ router.post("/settings", urlencodedParser, (req, res) => {
     else res.render("settings.njk", { user: req.user, error: "Please enter a valid city and try again"});        
 });
 
+//Route for viewing "my trades"
 router.get("/trades", (req, res, next) => {
     Trade.find({$or: [{"trader.id": req.user.id}, {"customer.id": req.user.id}]}, (err, trades) => {        
         if(err) next(err);
@@ -48,6 +41,21 @@ router.get("/trades", (req, res, next) => {
     });    
 });
 
+//Route for trade proposals
+router.post("/trades", authCheck, urlencodedParser, (req, res, next) => {
+    let trade_id = req.body.trade_id;    
+    Trade.findById(trade_id, (err, trade) => {
+        if(err) return next(err);
+        else if(trade.customer.id || trade.trader.id == req.user.id) return res.redirect("/books");        
+        Trade.updateOne({_id: trade_id}, {customer: {id: req.user.id, username: req.user.username, link: req.user.link}}, (err) => {
+            if(err) next(err);
+            else return res.redirect("/my/trades");
+        });
+    });    
+});
+
+
+//Route for accepting or declining a pending trade
 router.post("/trades/:response",authCheck, urlencodedParser, (req, res, next) => { 
     let trade_id = req.body.trade_id;   
     if(req.params.response == "accept") {
@@ -65,6 +73,8 @@ router.post("/trades/:response",authCheck, urlencodedParser, (req, res, next) =>
     }
 });
 
+
+//Route for viewing "my books"
 router.get("/books", (req, res, next) => {    
     Trade.find({$and: [{"trader.id": req.user.id}, {pending: true}]}, (err, trades) => {                       
         if(err) next(err);        
@@ -132,24 +142,5 @@ router.post("/books/withdraw", urlencodedParser, (req, res, next) => {
         .catch((e) => next(e));
 });
 
-function sortTrades(trades) {
-    let pendingTrades = [];
-    let tradeHistory = [];
-    for(let trade of trades) {
-        if(trade.pending) pendingTrades.push(trade);
-        else {
-            let new_trade = {
-                trader: trade.trader,
-                customer: trade.customer,
-                book: trade.book,
-                _id: trade._id,
-                pending: trade.pending,
-                date: new Date(trade.date).toUTCString()
-            };
-            tradeHistory.push(new_trade);
-        }
-    }     
-    return [pendingTrades.length > 0 ? pendingTrades : false, tradeHistory.length > 0 ? tradeHistory : false];
-}
 
 module.exports = router;
