@@ -1,8 +1,11 @@
+require("dotenv").config();
 const passport = require("passport");
 const TwitterStrategy = require("passport-twitter").Strategy;
 const LocalStrategy = require("passport-local").Strategy;
 const crypto = require("crypto");
 const User = require("../models/user-model");
+
+const callbackURL = process.env.ENVIRONMENT === "production" ? "https://book-club-feddle.glitch.me/auth/twitter/redirect" : "http://127.0.0.1:51334/auth/twitter/redirect";
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
@@ -28,7 +31,8 @@ passport.use(
 passport.use(
     new TwitterStrategy({        
         consumerKey: process.env.TWITTER_CONSUMER_KEY,
-        consumerSecret: process.env.TWITTER_CONSUMER_SECRET        
+        consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+        callbackURL
     }, (token, tokenSecret, profile, done) => {           
         User.findOne({twitterId: profile.id}).then((currentUser) => {
             if(currentUser){                
