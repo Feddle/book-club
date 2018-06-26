@@ -1,11 +1,12 @@
 {
   "name": "book-club",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "FCC book trading club",
   "scripts": {
     "start": "node server.js",
     "sass": "node-sass styles/style.scss public/style.processed.css",
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+    "test": "jest"
   },
   "dependencies": {
     "axios": "^0.18.0",
