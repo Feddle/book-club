@@ -13,7 +13,7 @@ const tradeSchema = new Schema({
         link: String
     },          
     date: Date,
-    pending: Boolean,    
+    pending: { type: Boolean, required: true },    
     book: {
         title: String,
         author: String,
