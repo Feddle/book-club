@@ -8,12 +8,11 @@ const passport = require("passport");
 const mongoose = require("mongoose");
 const cookieSession = require("cookie-session");
 const cookieParser = require("cookie-parser");
-
+const mainRoutes = require("./routes/main-routes");
 const authRoutes = require("./routes/auth-routes");
-const userRoutes = require("./routes/user-routes.js");
+const userRoutes = require("./routes/user-routes");
 require("./config/passport-setup");
 const User = require("./models/user-model");
-const Trade = require("./models/trade-model");
 
 const app = express();
 const url = "mongodb://"+process.env.DB_USER+":"+process.env.DB_PASS+"@"+process.env.DB_HOST+":"+process.env.DB_PORT+"/"+process.env.DB_NAME;
@@ -38,16 +37,18 @@ app.use(cookieSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
+//Configure TLS if production
 if(process.env.ENVIRONMENT === "production") {
     app.use(helmet(require("./config/helmet-setup")));  
-    app.all("*", checkHttps);
+    app.all("*", (req, res, next) => {
+        if(req.get("X-Forwarded-Proto").indexOf("https") != -1) return next();
+        else res.redirect("https://" + req.hostname + req.url);
+    });
 }
 
-function checkHttps(req, res, next){
-    if(req.get("X-Forwarded-Proto").indexOf("https") != -1) return next();
-    else res.redirect("https://" + req.hostname + req.url);
-}
 
+//Routes
+app.use("/", mainRoutes);
 app.use("/auth", authRoutes);
 app.use("/my", userRoutes);
 
@@ -60,38 +61,12 @@ mongoose.connect(url, () => {
 });
 
 
-//route for homepage
-app.get("/", (req, res) => {
-    res.render("index.njk", {user: req.user});
-});
-
-app.get("/user/:link", (req, res, next) => {
-    User.findOne({link: req.params.link}, (err, userpage) => {
-        if(err) return next(err);
-        else {
-            Trade.find({"trader.id": userpage._id}, (err, trades) => {                                            
-                if(err) next(err);
-                else return res.render("user.njk", {user: req.user, userpage, trades});
-            });
-        }
-    });    
-});
-
-app.get("/books", (req, res, next) => {        
-    Trade.find({pending: true}, (err, trades) => {
-        if(err) next(err);
-        else if(trades.length > 0) res.render("books.njk", {user: req.user, trades});
-        else res.render("books.njk", {user: req.user, trades: false});
-    });    
-});
-
-
-//default route
+//Default route
 app.get("*", (req, res) => {
     res.status(404).end("Page not found");
 });
 
-
+//Route default error handler
 app.use((err, req, res) => {
     console.error(err.stack);
     res.status(500).send(err.message);
