@@ -11,9 +11,16 @@ router.get("/user/:link", (req, res, next) => {
     User.findOne({link: req.params.link}, (err, userpage) => {
         if(err) return next(err);
         else {
-            Trade.find({"trader.id": userpage._id}, (err, trades) => {                                            
+            Trade.find({"trader.id": userpage._id}, (err, result) => {                                            
                 if(err) next(err);
-                else return res.render("user.njk", {user: req.user, userpage, trades});
+                {
+                    let trades = [];
+                    for(let trade of result) {
+                        if(trade.pending === false && trade.customer) continue;
+                        trades.push(trade);
+                    }
+                    return res.render("user.njk", {user: req.user, userpage, trades});
+                }
             });
         }
     });    
